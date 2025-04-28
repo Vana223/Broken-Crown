@@ -9,14 +9,19 @@ public class MonsterMovement : MonoBehaviour
 
     public Transform playerTransform;
     public bool isChasing;
+    public bool isPatrol;
     public float chaseDistance;
     public float stopChaseDistance;
+    public float attackRange = 3f;
 
     private Animator animator;
+
+    Rigidbody2D rb;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        rb = animator.GetComponent<Rigidbody2D>();
     }
 
     void Update()
@@ -25,12 +30,12 @@ public class MonsterMovement : MonoBehaviour
 
         if (isChasing)
         {
-            animator.SetBool("isWalking", true); // включаем анимацию ходьбы
+            animator.SetBool("isWalking", true);
 
             if (distanceToPlayer > stopChaseDistance)
             {
                 isChasing = false;
-                animator.SetBool("isWalking", false); // останавливаем анимацию
+                animator.SetBool("isWalking", false);
                 return;
             }
 
@@ -45,33 +50,48 @@ public class MonsterMovement : MonoBehaviour
                 transform.localScale = new Vector3(-1, 1, 1);
                 transform.position += Vector3.right * moveSpeed * Time.deltaTime;
             }
+
+            if(Vector2.Distance(playerTransform.position, transform.position) <= attackRange)
+            {
+                isChasing = false;
+                isPatrol = false;
+                animator.SetBool("isWalking", false);
+                animator.SetTrigger("attack");
+            }
         }
         else
         {
-            animator.SetBool("isWalking", true); // патрулирование = ходьба
+            animator.SetBool("isWalking", true);
 
             if (distanceToPlayer < chaseDistance)
             {
                 isChasing = true;
             }
-
-            if (patrolDestination == 0)
+            else
             {
-                transform.position = Vector2.MoveTowards(transform.position, patrolPoints[0].position, moveSpeed * Time.deltaTime);
-                if (Vector2.Distance(transform.position, patrolPoints[0].position) < .2f)
-                {
-                    transform.localScale = new Vector3(-1, 1, 1);
-                    patrolDestination = 1;
-                }
+                isPatrol = true;
             }
 
-            if (patrolDestination == 1)
+            if(isPatrol)
             {
-                transform.position = Vector2.MoveTowards(transform.position, patrolPoints[1].position, moveSpeed * Time.deltaTime);
-                if (Vector2.Distance(transform.position, patrolPoints[1].position) < .2f)
+                if (patrolDestination == 0)
                 {
-                    transform.localScale = new Vector3(1, 1, 1);
-                    patrolDestination = 0;
+                    transform.position = Vector2.MoveTowards(transform.position, patrolPoints[0].position, moveSpeed * Time.deltaTime);
+                    if (Vector2.Distance(transform.position, patrolPoints[0].position) < .2f)
+                    {
+                        transform.localScale = new Vector3(-1, 1, 1);
+                        patrolDestination = 1;
+                    }
+                }
+
+                if (patrolDestination == 1)
+                {
+                    transform.position = Vector2.MoveTowards(transform.position, patrolPoints[1].position, moveSpeed * Time.deltaTime);
+                    if (Vector2.Distance(transform.position, patrolPoints[1].position) < .2f)
+                    {
+                        transform.localScale = new Vector3(1, 1, 1);
+                        patrolDestination = 0;
+                    }
                 }
             }
         }
