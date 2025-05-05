@@ -1,12 +1,14 @@
 using UnityEngine;
-using System.Collections;
 
 public class MonsterDamage : MonoBehaviour
 {
-    public int attackDamage = 2;
+    public int attackDamage;
     public Vector3 attackOffset;
-    public float attackRange = 1f;
+    public float attackRange;
     public LayerMask attackMask;
+    public float attackCooldown;
+
+    private float lastAttackTime = -Mathf.Infinity;
 
     public void Attack()
     {
@@ -15,9 +17,28 @@ public class MonsterDamage : MonoBehaviour
         pos += transform.up * attackOffset.y;
 
         Collider2D colInfo = Physics2D.OverlapCircle(pos, attackRange, attackMask);
-        if(colInfo != null)
+        if (colInfo != null)
         {
-            colInfo.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
+            PlayerHealth playerHealth = colInfo.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+                playerHealth.TakeDamage(attackDamage);
+
+            HeroKnight hero = colInfo.GetComponent<HeroKnight>();
+            if (hero != null)
+            {
+                hero.KnockFromRight = transform.position.x > hero.transform.position.x;
+                hero.KBCounter = hero.KBTotalTime;
+            }
         }
+    }
+
+    public float GetNextAttackTime()
+    {
+        return lastAttackTime + attackCooldown;
+    }
+
+    public void RegisterAttack()
+    {
+        lastAttackTime = Time.time;
     }
 }

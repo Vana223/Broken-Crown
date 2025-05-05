@@ -16,13 +16,22 @@ public class PlayerHealth : MonoBehaviour
         health = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
     }
-    
+
     public void TakeDamage(int damage)
     {
+        HeroKnight hero = GetComponent<HeroKnight>();
+        PlayerStamina stamina = GetComponent<PlayerStamina>();
+
+        if (hero != null && hero.IsBlocking && stamina != null)
+        {
+            if (stamina.UseStamina(3))
+                return;
+        }
+
         health -= damage;
         animator.SetTrigger("Hurt");
 
-        if(health <= 0)
+        if (health <= 0)
         {
             animator.SetTrigger("Death");
         }

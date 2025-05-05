@@ -3,24 +3,33 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     public Animator animator;
-
     public MonsterMovement monsterMovement;
 
     public int maxHealth = 10;
     int currentHealth;
 
+    public HealthBar healthBar;
+
+    private Rigidbody2D rb;
+    public float knockbackForce = 2f;
+
     void Start()
     {
         currentHealth = maxHealth;
         animator = GetComponent<Animator>();
+        healthBar.SetMaxHealth(maxHealth);
+        rb = GetComponent<Rigidbody2D>();
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, Vector2 knockDirection)
     {
         currentHealth -= damage;
         animator.SetTrigger("hurt");
 
-        if(currentHealth <= 0)
+        rb.linearVelocity = Vector2.zero;
+        rb.AddForce(knockDirection * knockbackForce, ForceMode2D.Impulse);
+
+        if (currentHealth <= 0)
         {
             animator.SetBool("isDead", true);
 
@@ -28,5 +37,7 @@ public class EnemyHealth : MonoBehaviour
             monsterMovement.enabled = false;
             monsterMovement.moveSpeed = 0;
         }
+
+        healthBar.SetHealth(currentHealth);
     }
 }

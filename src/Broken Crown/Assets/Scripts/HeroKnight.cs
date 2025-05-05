@@ -6,7 +6,6 @@ public class HeroKnight : MonoBehaviour
     [SerializeField] float m_speed = 4.0f;
     [SerializeField] float m_jumpForce = 7.5f;
     [SerializeField] float m_rollForce = 6.0f;
-    [SerializeField] bool m_noBlood = false;
     [SerializeField] GameObject m_slideDust;
 
     private Animator m_animator;
@@ -25,6 +24,7 @@ public class HeroKnight : MonoBehaviour
     private float m_delayToIdle = 0.0f;
     private float m_rollDuration = 8.0f / 14.0f;
     private float m_rollCurrentTime;
+    private bool isAttacking = false;
 
     public Transform attackPoint;
     public float attackRange = 0.5f;
@@ -32,10 +32,21 @@ public class HeroKnight : MonoBehaviour
 
     public int attackDamage = 3;
 
+    public float KBForce;
+    public float KBCounter;
+    public float KBTotalTime;
+
+    public bool KnockFromRight;
+
+    public bool IsBlocking { get; private set; }
+
+    private PlayerStamina stamina;
+
     void Start()
     {
         m_animator = GetComponent<Animator>();
         m_body2d = GetComponent<Rigidbody2D>();
+        stamina = GetComponent<PlayerStamina>();
         m_groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_HeroKnight>();
         m_wallSensorR1 = transform.Find("WallSensor_R1").GetComponent<Sensor_HeroKnight>();
         m_wallSensorR2 = transform.Find("WallSensor_R2").GetComponent<Sensor_HeroKnight>();
@@ -78,7 +89,12 @@ public class HeroKnight : MonoBehaviour
             m_facingDirection = -1;
         }
 
-        // Движение запрещено при блоке
+        if (isAttacking)
+        {
+            m_body2d.linearVelocity = new Vector2(0, m_body2d.linearVelocity.y);
+            return;
+        }
+
         if (!m_rolling && !m_animator.GetBool("IdleBlock"))
             m_body2d.linearVelocity = new Vector2(inputX * m_speed, m_body2d.linearVelocity.y);
         else if (m_animator.GetBool("IdleBlock"))
@@ -89,14 +105,7 @@ public class HeroKnight : MonoBehaviour
         m_isWallSliding = (m_wallSensorR1.State() && m_wallSensorR2.State()) || (m_wallSensorL1.State() && m_wallSensorL2.State());
         m_animator.SetBool("WallSlide", m_isWallSliding);
 
-        if (Input.GetKeyDown("e") && !m_rolling)
-        {
-            m_animator.SetBool("noBlood", m_noBlood);
-            m_animator.SetTrigger("Death");
-        }
-        else if (Input.GetKeyDown("q") && !m_rolling)
-            m_animator.SetTrigger("Hurt");
-        else if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling && !m_animator.GetBool("IdleBlock"))
+        if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling && !m_animator.GetBool("IdleBlock") && stamina.UseStamina(2))
         {
             m_currentAttack++;
 
@@ -107,23 +116,29 @@ public class HeroKnight : MonoBehaviour
                 m_currentAttack = 1;
 
             m_animator.SetTrigger("Attack" + m_currentAttack);
+            isAttacking = true;
+            StartCoroutine(StopAttackingAfterDelay(0.5f));
 
             m_timeSinceAttack = 0.0f;
 
             Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
-
             foreach (Collider2D enemy in hitEnemies)
             {
-                enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage);
+                Vector2 knockDir = (enemy.transform.position - transform.position).normalized;
+                enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage, knockDir);
             }
         }
         else if (Input.GetMouseButtonDown(1) && !m_rolling)
         {
             m_animator.SetTrigger("Block");
             m_animator.SetBool("IdleBlock", true);
+            IsBlocking = true;
         }
         else if (Input.GetMouseButtonUp(1))
+        {
             m_animator.SetBool("IdleBlock", false);
+            IsBlocking = false;
+        }
         else if (Input.GetKeyDown("left shift") && !m_rolling && !m_isWallSliding && !m_animator.GetBool("IdleBlock"))
         {
             m_rolling = true;
@@ -149,6 +164,20 @@ public class HeroKnight : MonoBehaviour
             if (m_delayToIdle < 0)
                 m_animator.SetInteger("AnimState", 0);
         }
+
+        if (KBCounter > 0)
+        {
+            KnockBack();
+            return;
+        }
+    }
+
+    void KnockBack()
+    {
+        float direction = KnockFromRight ? -1 : 1;
+        float forceMultiplier = IsBlocking ? 0.3f : 1f;
+        m_body2d.linearVelocity = new Vector2(direction * KBForce * forceMultiplier, KBForce * forceMultiplier);
+        KBCounter -= Time.deltaTime;
     }
 
     void OnDrawGizmosSelected()
@@ -173,5 +202,11 @@ public class HeroKnight : MonoBehaviour
             GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
             dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
         }
+    }
+
+    private IEnumerator StopAttackingAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        isAttacking = false;
     }
 }
