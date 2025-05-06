@@ -29,10 +29,11 @@ public class EnemyHealth : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.AddForce(knockDirection * knockbackForce, ForceMode2D.Impulse);
 
+        monsterMovement.ApplyKnockback();
+
         if (currentHealth <= 0)
         {
             animator.SetBool("isDead", true);
-
             this.enabled = false;
             monsterMovement.enabled = false;
             monsterMovement.moveSpeed = 0;
