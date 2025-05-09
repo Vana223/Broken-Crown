@@ -13,13 +13,15 @@ public class MonsterMovement : MonoBehaviour
 
     public MonsterDamage monsterDamage;
 
-    public Transform canvasRoot; // <-- сюда закинь пустой объект, содержащий Canvas
+    public Transform canvasRoot;
 
     private Animator animator;
     private Rigidbody2D rb;
 
     private float knockbackTimer = 0f;
     public float knockbackDuration;
+
+    public int expAmount = 10;
 
     void Start()
     {
@@ -114,7 +116,7 @@ public class MonsterMovement : MonoBehaviour
         if (canvasRoot != null)
         {
             canvasRoot.localScale = new Vector3(
-                -xScale, // зеркалим относительно врага
+                -xScale,
                 1f,
                 1f
             );
@@ -128,6 +130,7 @@ public class MonsterMovement : MonoBehaviour
 
     void Destroy()
     {
+        ExperienceManager.Instance.AddExperience(expAmount);
         Destroy(gameObject);
     }
 }

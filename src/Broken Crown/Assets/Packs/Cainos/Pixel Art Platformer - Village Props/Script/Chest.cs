@@ -22,7 +22,7 @@ namespace Cainos.PixelArtPlatformer_VillageProps
         }
         private bool isOpened;
 
-        [FoldoutGroup("Runtime"),Button("Open"), HorizontalGroup("Runtime/Button")]
+        [FoldoutGroup("Runtime"), Button("Open"), HorizontalGroup("Runtime/Button")]
         public void Open()
         {
             IsOpened = true;
@@ -32,6 +32,32 @@ namespace Cainos.PixelArtPlatformer_VillageProps
         public void Close()
         {
             IsOpened = false;
+        }
+
+        private bool playerInRange = false;
+
+        private void Update()
+        {
+            if (playerInRange && Input.GetKeyDown(KeyCode.E))
+            {
+                IsOpened = !IsOpened;
+            }
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.CompareTag("Player"))
+            {
+                playerInRange = true;
+            }
+        }
+
+        private void OnTriggerExit2D(Collider2D collision)
+        {
+            if (collision.CompareTag("Player"))
+            {
+                playerInRange = false;
+            }
         }
     }
 }

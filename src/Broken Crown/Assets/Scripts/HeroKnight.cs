@@ -42,6 +42,8 @@ public class HeroKnight : MonoBehaviour
 
     private PlayerStamina stamina;
 
+    public int currentExperience;
+
     void Start()
     {
         m_animator = GetComponent<Animator>();
@@ -202,6 +204,21 @@ public class HeroKnight : MonoBehaviour
             GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
             dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
         }
+    }
+
+    private void OnEnable()
+    {
+        ExperienceManager.Instance.OnExperienceChange += HandleExperienceChange;
+    }
+
+    private void OnDisable()
+    {
+        ExperienceManager.Instance.OnExperienceChange -= HandleExperienceChange;
+    }
+
+    private void HandleExperienceChange(int newExperience)
+    {
+        currentExperience += newExperience;
     }
 
     private IEnumerator StopAttackingAfterDelay(float delay)

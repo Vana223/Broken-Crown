@@ -5,7 +5,7 @@ public class EnemyHealth : MonoBehaviour
     public Animator animator;
     public MonsterMovement monsterMovement;
 
-    public int maxHealth = 10;
+    public int maxHealth;
     int currentHealth;
 
     public HealthBar healthBar;
