@@ -41,7 +41,7 @@ public class MonsterMovement : MonoBehaviour
 
         if (distanceToPlayer <= attackRange)
         {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             animator.SetBool("isWalking", false);
 
             FacePlayer();

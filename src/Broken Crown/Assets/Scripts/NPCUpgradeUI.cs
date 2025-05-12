@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class NPCUpgradeUI : MonoBehaviour
 {
     public GameObject uiPanel;
+    public GameObject interactHint;
     public Button healthButton;
     public Button staminaButton;
     public Button damageButton;
@@ -12,18 +13,32 @@ public class NPCUpgradeUI : MonoBehaviour
     private PlayerHealth playerHealth;
     private PlayerStamina playerStamina;
 
-    public int healthIncrease = 5;
-    public int staminaIncrease = 5;
-    public int damageIncrease = 1;
-    public int expCost = 1;
+    public int healthIncrease;
+    public int staminaIncrease;
+    public int damageIncrease;
+    public int expCost;
+
+    private bool playerInRange = false;
 
     private void Start()
     {
         uiPanel.SetActive(false);
+        interactHint.SetActive(false);
 
         healthButton.onClick.AddListener(() => UpgradeHealth());
         staminaButton.onClick.AddListener(() => UpgradeStamina());
         damageButton.onClick.AddListener(() => UpgradeDamage());
+    }
+
+    private void Update()
+    {
+        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        {
+            bool isActive = !uiPanel.activeSelf;
+            uiPanel.SetActive(isActive);
+            Time.timeScale = isActive ? 0f : 1f;
+            interactHint.SetActive(!isActive);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -35,7 +50,10 @@ public class NPCUpgradeUI : MonoBehaviour
             playerStamina = other.GetComponent<PlayerStamina>();
 
             if (hero != null && playerHealth != null && playerStamina != null)
-                uiPanel.SetActive(true);
+            {
+                playerInRange = true;
+                interactHint.SetActive(true);
+            }
         }
     }
 
@@ -43,7 +61,10 @@ public class NPCUpgradeUI : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            playerInRange = false;
             uiPanel.SetActive(false);
+            interactHint.SetActive(false);
+            Time.timeScale = 1f;
         }
     }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 public class PlayerStamina : MonoBehaviour
 {
     public int maxStamina = 10;
-    private float currentStamina;
+    public float currentStamina;
     public float regenRate = 2f;
     public float regenDelay = 3f;
 
@@ -43,5 +43,16 @@ public class PlayerStamina : MonoBehaviour
     public bool IsOutOfStamina()
     {
         return currentStamina <= 0;
+    }
+
+    public float GetCurrentStamina()
+    {
+        return currentStamina;
+    }
+
+    public void RestoreStamina(int amount)
+    {
+        currentStamina = Mathf.Min(currentStamina + amount, maxStamina);
+        staminaBar.SetStamina(Mathf.RoundToInt(currentStamina));
     }
 }

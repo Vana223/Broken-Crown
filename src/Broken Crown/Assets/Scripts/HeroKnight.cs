@@ -8,6 +8,9 @@ public class HeroKnight : MonoBehaviour
     [SerializeField] float m_rollForce = 6.0f;
     [SerializeField] GameObject m_slideDust;
 
+    [SerializeField] private float sprintSpeedBonus = 2.0f;
+    [SerializeField] private int staminaCostPerSecond = 2;
+
     private Animator m_animator;
     private Rigidbody2D m_body2d;
     private Sensor_HeroKnight m_groundSensor;
@@ -43,6 +46,9 @@ public class HeroKnight : MonoBehaviour
     private PlayerStamina stamina;
 
     public int currentExperience;
+
+    private bool isSprinting = false;
+    private float sprintStaminaTimer = 0f;
 
     void Start()
     {
@@ -80,6 +86,7 @@ public class HeroKnight : MonoBehaviour
 
         float inputX = Input.GetAxis("Horizontal");
 
+        // Flip sprite
         if (inputX > 0)
         {
             GetComponent<SpriteRenderer>().flipX = false;
@@ -91,22 +98,53 @@ public class HeroKnight : MonoBehaviour
             m_facingDirection = -1;
         }
 
+        // Sprinting
+        if (Input.GetKey(KeyCode.LeftShift) && inputX != 0 && stamina.currentStamina >= staminaCostPerSecond)
+        {
+            isSprinting = true;
+            sprintStaminaTimer += Time.deltaTime;
+
+            if (sprintStaminaTimer >= 1f)
+            {
+                bool used = stamina.UseStamina(staminaCostPerSecond);
+                if (!used)
+                {
+                    isSprinting = false;
+                }
+                sprintStaminaTimer = 0f;
+            }
+        }
+        else
+        {
+            isSprinting = false;
+            sprintStaminaTimer = 0f;
+        }
+
         if (isAttacking)
         {
             m_body2d.linearVelocity = new Vector2(0, m_body2d.linearVelocity.y);
             return;
         }
 
+        // Movement
         if (!m_rolling && !m_animator.GetBool("IdleBlock"))
-            m_body2d.linearVelocity = new Vector2(inputX * m_speed, m_body2d.linearVelocity.y);
+        {
+            float currentSpeed = isSprinting ? m_speed + sprintSpeedBonus : m_speed;
+            m_body2d.linearVelocity = new Vector2(inputX * currentSpeed, m_body2d.linearVelocity.y);
+        }
         else if (m_animator.GetBool("IdleBlock"))
+        {
             m_body2d.linearVelocity = new Vector2(0, m_body2d.linearVelocity.y);
+        }
 
+        // Set AirSpeed in animator
         m_animator.SetFloat("AirSpeedY", m_body2d.linearVelocity.y);
 
+        // Wall Slide
         m_isWallSliding = (m_wallSensorR1.State() && m_wallSensorR2.State()) || (m_wallSensorL1.State() && m_wallSensorL2.State());
         m_animator.SetBool("WallSlide", m_isWallSliding);
 
+        // Attack
         if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling && !m_animator.GetBool("IdleBlock") && stamina.UseStamina(2))
         {
             m_currentAttack++;
@@ -141,12 +179,6 @@ public class HeroKnight : MonoBehaviour
             m_animator.SetBool("IdleBlock", false);
             IsBlocking = false;
         }
-        else if (Input.GetKeyDown("left shift") && !m_rolling && !m_isWallSliding && !m_animator.GetBool("IdleBlock"))
-        {
-            m_rolling = true;
-            m_animator.SetTrigger("Roll");
-            m_body2d.linearVelocity = new Vector2(m_facingDirection * m_rollForce, m_body2d.linearVelocity.y);
-        }
         else if (Input.GetKeyDown("space") && m_grounded && !m_rolling && !m_animator.GetBool("IdleBlock"))
         {
             m_animator.SetTrigger("Jump");
@@ -167,6 +199,7 @@ public class HeroKnight : MonoBehaviour
                 m_animator.SetInteger("AnimState", 0);
         }
 
+        // Knockback
         if (KBCounter > 0)
         {
             KnockBack();
