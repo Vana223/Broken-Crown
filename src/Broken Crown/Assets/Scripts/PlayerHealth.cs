@@ -1,26 +1,31 @@
 using UnityEngine;
-using System.Collections;
 
 public class PlayerHealth : MonoBehaviour
 {
     public int maxHealth = 10;
     public int health;
-
     private Animator animator;
 
     public HealthBar healthBar;
+    public GameObject deathPanelUI;
+
+    private Vector3 lastDeathPosition;
+    private PlayerStamina stamina;
 
     void Start()
     {
         animator = GetComponent<Animator>();
+        stamina = GetComponent<PlayerStamina>();
         health = maxHealth;
         healthBar.SetMaxHealth(maxHealth);
+
+        if (deathPanelUI != null)
+            deathPanelUI.SetActive(false);
     }
 
     public void TakeDamage(int damage)
     {
         HeroKnight hero = GetComponent<HeroKnight>();
-        PlayerStamina stamina = GetComponent<PlayerStamina>();
 
         if (hero != null && hero.IsBlocking && stamina != null)
         {
@@ -34,8 +39,58 @@ public class PlayerHealth : MonoBehaviour
         if (health <= 0)
         {
             animator.SetTrigger("Death");
+            lastDeathPosition = transform.position;
         }
 
         healthBar.SetHealth(health);
+    }
+
+    private void Die()
+    {
+        if (deathPanelUI != null)
+            deathPanelUI.SetActive(true);
+
+        Time.timeScale = 0f;
+    }
+
+    // ✔ Обычное возрождение на чекпоінті
+    public void Respawn()
+    {
+        HeroKnight hero = GetComponent<HeroKnight>();
+
+        if (hero != null)
+        {
+            hero.currentExperience = Mathf.Max(hero.currentExperience - 100, 0);
+        }
+
+        transform.position = CheckpointManager.Instance.GetCheckpointPosition();
+
+        health = maxHealth;
+        healthBar.SetHealth(health);
+
+        if (stamina != null)
+            stamina.RestoreStamina(stamina.maxStamina);
+
+        if (deathPanelUI != null)
+            deathPanelUI.SetActive(false);
+
+        Time.timeScale = 1f;
+    }
+
+    // ✔ Воскресение на месте смерти с фиолетовым зельем
+    public void RespawnOnDeathSpot()
+    {
+        transform.position = lastDeathPosition;
+
+        health = maxHealth;
+        healthBar.SetHealth(health);
+
+        if (stamina != null)
+            stamina.RestoreStamina(stamina.maxStamina);
+
+        if (deathPanelUI != null)
+            deathPanelUI.SetActive(false);
+
+        Time.timeScale = 1f;
     }
 }

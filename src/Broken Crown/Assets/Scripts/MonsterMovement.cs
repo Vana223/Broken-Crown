@@ -128,9 +128,14 @@ public class MonsterMovement : MonoBehaviour
         knockbackTimer = knockbackDuration;
     }
 
-    void Destroy()
+    public void Die()
     {
-        ExperienceManager.Instance.AddExperience(expAmount);
+        HeroKnight hero = playerTransform.GetComponent<HeroKnight>();
+        if (hero != null)
+        {
+            hero.currentExperience += expAmount;
+        }
+
         Destroy(gameObject);
     }
 }

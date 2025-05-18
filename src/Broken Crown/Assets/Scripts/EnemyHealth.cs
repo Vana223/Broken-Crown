@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -34,9 +35,6 @@ public class EnemyHealth : MonoBehaviour
         if (currentHealth <= 0)
         {
             animator.SetBool("isDead", true);
-            this.enabled = false;
-            monsterMovement.enabled = false;
-            monsterMovement.moveSpeed = 0;
         }
 
         healthBar.SetHealth(currentHealth);

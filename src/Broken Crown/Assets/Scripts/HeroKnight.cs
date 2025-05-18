@@ -1,44 +1,35 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TMPro;
 
 public class HeroKnight : MonoBehaviour
 {
     [SerializeField] float m_speed = 4.0f;
     [SerializeField] float m_jumpForce = 7.5f;
-    [SerializeField] float m_rollForce = 6.0f;
-    [SerializeField] GameObject m_slideDust;
-
     [SerializeField] private float sprintSpeedBonus = 2.0f;
     [SerializeField] private int staminaCostPerSecond = 2;
+    [SerializeField] Transform groundCheck;
+    [SerializeField] float groundCheckRadius = 0.2f;
+    [SerializeField] LayerMask groundLayer;
 
     private Animator m_animator;
     private Rigidbody2D m_body2d;
-    private Sensor_HeroKnight m_groundSensor;
-    private Sensor_HeroKnight m_wallSensorR1;
-    private Sensor_HeroKnight m_wallSensorR2;
-    private Sensor_HeroKnight m_wallSensorL1;
-    private Sensor_HeroKnight m_wallSensorL2;
-    private bool m_isWallSliding = false;
+
     private bool m_grounded = false;
-    private bool m_rolling = false;
     private int m_facingDirection = 1;
     private int m_currentAttack = 0;
     private float m_timeSinceAttack = 0.0f;
     private float m_delayToIdle = 0.0f;
-    private float m_rollDuration = 8.0f / 14.0f;
-    private float m_rollCurrentTime;
     private bool isAttacking = false;
 
     public Transform attackPoint;
     public float attackRange = 0.5f;
     public LayerMask enemyLayers;
-
     public int attackDamage = 3;
 
     public float KBForce;
     public float KBCounter;
     public float KBTotalTime;
-
     public bool KnockFromRight;
 
     public bool IsBlocking { get; private set; }
@@ -46,6 +37,8 @@ public class HeroKnight : MonoBehaviour
     private PlayerStamina stamina;
 
     public int currentExperience;
+
+    [SerializeField] private TextMeshProUGUI experienceText;
 
     private bool isSprinting = false;
     private float sprintStaminaTimer = 0f;
@@ -55,38 +48,20 @@ public class HeroKnight : MonoBehaviour
         m_animator = GetComponent<Animator>();
         m_body2d = GetComponent<Rigidbody2D>();
         stamina = GetComponent<PlayerStamina>();
-        m_groundSensor = transform.Find("GroundSensor").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorR1 = transform.Find("WallSensor_R1").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorR2 = transform.Find("WallSensor_R2").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorL1 = transform.Find("WallSensor_L1").GetComponent<Sensor_HeroKnight>();
-        m_wallSensorL2 = transform.Find("WallSensor_L2").GetComponent<Sensor_HeroKnight>();
+        UpdateExperienceText();
     }
 
     void Update()
     {
         m_timeSinceAttack += Time.deltaTime;
 
-        if (m_rolling)
-            m_rollCurrentTime += Time.deltaTime;
+        UpdateExperienceText();
 
-        if (m_rollCurrentTime > m_rollDuration)
-            m_rolling = false;
-
-        if (!m_grounded && m_groundSensor.State())
-        {
-            m_grounded = true;
-            m_animator.SetBool("Grounded", m_grounded);
-        }
-
-        if (m_grounded && !m_groundSensor.State())
-        {
-            m_grounded = false;
-            m_animator.SetBool("Grounded", m_grounded);
-        }
+        m_grounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        m_animator.SetBool("Grounded", m_grounded);
 
         float inputX = Input.GetAxis("Horizontal");
 
-        // Flip sprite
         if (inputX > 0)
         {
             GetComponent<SpriteRenderer>().flipX = false;
@@ -98,7 +73,6 @@ public class HeroKnight : MonoBehaviour
             m_facingDirection = -1;
         }
 
-        // Sprinting
         if (Input.GetKey(KeyCode.LeftShift) && inputX != 0 && stamina.currentStamina >= staminaCostPerSecond)
         {
             isSprinting = true;
@@ -126,26 +100,40 @@ public class HeroKnight : MonoBehaviour
             return;
         }
 
-        // Movement
-        if (!m_rolling && !m_animator.GetBool("IdleBlock"))
+        if (!m_animator.GetBool("IdleBlock"))
         {
             float currentSpeed = isSprinting ? m_speed + sprintSpeedBonus : m_speed;
             m_body2d.linearVelocity = new Vector2(inputX * currentSpeed, m_body2d.linearVelocity.y);
+
+            if (Mathf.Abs(inputX) > 0.1f && m_grounded)
+            {
+                if (isSprinting)
+                {
+                    AudioManager.Instance.StopWalkLoop();
+                    AudioManager.Instance.PlayRunLoop();
+                }
+                else
+                {
+                    AudioManager.Instance.StopRunLoop();
+                    AudioManager.Instance.PlayWalkLoop();
+                }
+            }
+            else
+            {
+                AudioManager.Instance.StopWalkLoop();
+                AudioManager.Instance.StopRunLoop();
+            }
         }
-        else if (m_animator.GetBool("IdleBlock"))
+        else
         {
             m_body2d.linearVelocity = new Vector2(0, m_body2d.linearVelocity.y);
+            AudioManager.Instance.StopWalkLoop();
+            AudioManager.Instance.StopRunLoop();
         }
 
-        // Set AirSpeed in animator
         m_animator.SetFloat("AirSpeedY", m_body2d.linearVelocity.y);
 
-        // Wall Slide
-        m_isWallSliding = (m_wallSensorR1.State() && m_wallSensorR2.State()) || (m_wallSensorL1.State() && m_wallSensorL2.State());
-        m_animator.SetBool("WallSlide", m_isWallSliding);
-
-        // Attack
-        if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_rolling && !m_animator.GetBool("IdleBlock") && stamina.UseStamina(2))
+        if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_animator.GetBool("IdleBlock") && stamina.UseStamina(2))
         {
             m_currentAttack++;
 
@@ -159,6 +147,8 @@ public class HeroKnight : MonoBehaviour
             isAttacking = true;
             StartCoroutine(StopAttackingAfterDelay(0.5f));
 
+            AudioManager.Instance.Play("Sword");
+
             m_timeSinceAttack = 0.0f;
 
             Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
@@ -168,24 +158,25 @@ public class HeroKnight : MonoBehaviour
                 enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage, knockDir);
             }
         }
-        else if (Input.GetMouseButtonDown(1) && !m_rolling)
+        else if (Input.GetMouseButtonDown(1))
         {
             m_animator.SetTrigger("Block");
             m_animator.SetBool("IdleBlock", true);
             IsBlocking = true;
+
+            AudioManager.Instance.Play("Shield");
         }
         else if (Input.GetMouseButtonUp(1))
         {
             m_animator.SetBool("IdleBlock", false);
             IsBlocking = false;
         }
-        else if (Input.GetKeyDown("space") && m_grounded && !m_rolling && !m_animator.GetBool("IdleBlock"))
+        else if (Input.GetKeyDown("space") && m_grounded && !m_animator.GetBool("IdleBlock"))
         {
             m_animator.SetTrigger("Jump");
             m_grounded = false;
             m_animator.SetBool("Grounded", m_grounded);
             m_body2d.linearVelocity = new Vector2(m_body2d.linearVelocity.x, m_jumpForce);
-            m_groundSensor.Disable(0.2f);
         }
         else if (Mathf.Abs(inputX) > Mathf.Epsilon && !m_animator.GetBool("IdleBlock"))
         {
@@ -199,7 +190,6 @@ public class HeroKnight : MonoBehaviour
                 m_animator.SetInteger("AnimState", 0);
         }
 
-        // Knockback
         if (KBCounter > 0)
         {
             KnockBack();
@@ -221,42 +211,28 @@ public class HeroKnight : MonoBehaviour
             return;
 
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
-    }
 
-    void AE_SlideDust()
-    {
-        Vector3 spawnPosition;
-
-        if (m_facingDirection == 1)
-            spawnPosition = m_wallSensorR2.transform.position;
-        else
-            spawnPosition = m_wallSensorL2.transform.position;
-
-        if (m_slideDust != null)
-        {
-            GameObject dust = Instantiate(m_slideDust, spawnPosition, gameObject.transform.localRotation) as GameObject;
-            dust.transform.localScale = new Vector3(m_facingDirection, 1, 1);
-        }
-    }
-
-    private void OnEnable()
-    {
-        ExperienceManager.Instance.OnExperienceChange += HandleExperienceChange;
-    }
-
-    private void OnDisable()
-    {
-        ExperienceManager.Instance.OnExperienceChange -= HandleExperienceChange;
-    }
-
-    private void HandleExperienceChange(int newExperience)
-    {
-        currentExperience += newExperience;
+        if (groundCheck != null)
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
     }
 
     private IEnumerator StopAttackingAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         isAttacking = false;
+    }
+
+    public void AddExperience(int amount)
+    {
+        currentExperience += amount;
+        UpdateExperienceText();
+    }
+
+    private void UpdateExperienceText()
+    {
+        if (experienceText != null)
+        {
+            experienceText.text = currentExperience.ToString();
+        }
     }
 }

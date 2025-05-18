@@ -4,19 +4,22 @@ using UnityEngine.UI;
 
 public class PotionManager : MonoBehaviour
 {
-    public int maxPotions = 5;
+    public int maxPotions = 3;
+
     public int healthPotionCount = 0;
     public int staminaPotionCount = 0;
+    public int respawnPotionCount = 0;
+
     public int healAmount = 5;
     public int staminaAmount = 5;
 
-    public GameObject healthFullImage;
-    public GameObject healthEmptyImage;
-    public TextMeshProUGUI healthPotionText;
+    public GameObject healthFullImage, healthEmptyImage;
+    public GameObject staminaFullImage, staminaEmptyImage;
+    public GameObject respawnFullImage, respawnEmptyImage;
 
-    public GameObject staminaFullImage;
-    public GameObject staminaEmptyImage;
+    public TextMeshProUGUI healthPotionText;
     public TextMeshProUGUI staminaPotionText;
+    public TextMeshProUGUI respawnPotionText;
 
     private PlayerHealth playerHealth;
     private PlayerStamina playerStamina;
@@ -30,14 +33,8 @@ public class PotionManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            TryUseHealthPotion();
-        }
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            TryUseStaminaPotion();
-        }
+        if (Input.GetKeyDown(KeyCode.H)) TryUseHealthPotion();
+        if (Input.GetKeyDown(KeyCode.G)) TryUseStaminaPotion();
     }
 
     public void AddHealthPotion()
@@ -58,6 +55,15 @@ public class PotionManager : MonoBehaviour
         }
     }
 
+    public void AddRespawnPotion()
+    {
+        if (respawnPotionCount < maxPotions)
+        {
+            respawnPotionCount++;
+            UpdateUI();
+        }
+    }
+
     void TryUseHealthPotion()
     {
         if (healthPotionCount > 0 && playerHealth.health < playerHealth.maxHealth)
@@ -71,8 +77,7 @@ public class PotionManager : MonoBehaviour
 
     void TryUseStaminaPotion()
     {
-        var current = playerStamina.GetCurrentStamina();
-        if (staminaPotionCount > 0 && current < playerStamina.maxStamina)
+        if (staminaPotionCount > 0 && playerStamina.GetCurrentStamina() < playerStamina.maxStamina)
         {
             playerStamina.RestoreStamina(staminaAmount);
             staminaPotionCount--;
@@ -80,14 +85,19 @@ public class PotionManager : MonoBehaviour
         }
     }
 
-    void UpdateUI()
+    public void UpdateUI()
     {
         healthPotionText.text = healthPotionCount.ToString();
+        staminaPotionText.text = staminaPotionCount.ToString();
+        respawnPotionText.text = respawnPotionCount.ToString();
+
         healthFullImage.SetActive(healthPotionCount > 0);
         healthEmptyImage.SetActive(healthPotionCount == 0);
 
-        staminaPotionText.text = staminaPotionCount.ToString();
         staminaFullImage.SetActive(staminaPotionCount > 0);
         staminaEmptyImage.SetActive(staminaPotionCount == 0);
+
+        respawnFullImage.SetActive(respawnPotionCount > 0);
+        respawnEmptyImage.SetActive(respawnPotionCount == 0);
     }
 }
