@@ -13,3 +13,8 @@
   
 ## Опублікований продукт
 Інсталяційний пакет створеної гри можна буде завантажити
+
+## Демонстрація гри
+![](https://github.com/Vana223/Broken-Crown/blob/main/docs/Screenshot_1.jpg?raw=true)
+
+![](https://github.com/Vana223/Broken-Crown/blob/main/docs/Screenshot_2.jpg?raw=true)
