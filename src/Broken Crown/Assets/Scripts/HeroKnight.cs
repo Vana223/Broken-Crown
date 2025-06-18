@@ -16,16 +16,16 @@ public class HeroKnight : MonoBehaviour
     private Rigidbody2D m_body2d;
 
     private bool m_grounded = false;
-    private int m_facingDirection = 1;
-    private int m_currentAttack = 0;
-    private float m_timeSinceAttack = 0.0f;
-    private float m_delayToIdle = 0.0f;
+    private int m_facingDirection;
+    private int m_currentAttack;
+    private float m_timeSinceAttack;
+    private float m_delayToIdle;
     private bool isAttacking = false;
 
     public Transform attackPoint;
-    public float attackRange = 0.5f;
+    public float attackRange;
     public LayerMask enemyLayers;
-    public int attackDamage = 3;
+    public int attackDamage;
 
     public float KBForce;
     public float KBCounter;
