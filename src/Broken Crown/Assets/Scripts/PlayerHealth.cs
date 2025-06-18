@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public int maxHealth = 10;
+    public int maxHealth;
     public int health;
     private Animator animator;
 
@@ -53,7 +53,6 @@ public class PlayerHealth : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    // ✔ Обычное возрождение на чекпоінті
     public void Respawn()
     {
         HeroKnight hero = GetComponent<HeroKnight>();
@@ -77,7 +76,6 @@ public class PlayerHealth : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    // ✔ Воскресение на месте смерти с фиолетовым зельем
     public void RespawnOnDeathSpot()
     {
         transform.position = lastDeathPosition;

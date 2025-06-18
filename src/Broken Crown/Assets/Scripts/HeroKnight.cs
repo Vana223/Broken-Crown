@@ -4,12 +4,12 @@ using TMPro;
 
 public class HeroKnight : MonoBehaviour
 {
-    [SerializeField] float m_speed = 4.0f;
-    [SerializeField] float m_jumpForce = 7.5f;
-    [SerializeField] private float sprintSpeedBonus = 2.0f;
-    [SerializeField] private int staminaCostPerSecond = 2;
+    [SerializeField] float m_speed;
+    [SerializeField] float m_jumpForce;
+    [SerializeField] private float sprintSpeedBonus;
+    [SerializeField] private int staminaCostPerSecond;
     [SerializeField] Transform groundCheck;
-    [SerializeField] float groundCheckRadius = 0.2f;
+    [SerializeField] float groundCheckRadius;
     [SerializeField] LayerMask groundLayer;
 
     private Animator m_animator;
@@ -43,12 +43,17 @@ public class HeroKnight : MonoBehaviour
     private bool isSprinting = false;
     private float sprintStaminaTimer = 0f;
 
+    private Vector3 attackPointInitialLocalPos;
+
     void Start()
     {
         m_animator = GetComponent<Animator>();
         m_body2d = GetComponent<Rigidbody2D>();
         stamina = GetComponent<PlayerStamina>();
         UpdateExperienceText();
+
+        if (attackPoint != null)
+            attackPointInitialLocalPos = attackPoint.localPosition;
     }
 
     void Update()
@@ -194,6 +199,18 @@ public class HeroKnight : MonoBehaviour
         {
             KnockBack();
             return;
+        }
+    }
+
+    void LateUpdate()
+    {
+        if (attackPoint != null)
+        {
+            attackPoint.localPosition = new Vector3(
+                Mathf.Abs(attackPointInitialLocalPos.x) * m_facingDirection,
+                attackPointInitialLocalPos.y,
+                attackPointInitialLocalPos.z
+            );
         }
     }
 

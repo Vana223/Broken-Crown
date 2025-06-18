@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class NPCUpgradeUI : MonoBehaviour
 {
+    [Header("UI Elements")]
     public GameObject uiPanel;
     public GameObject interactHint;
     public Button healthButton;
@@ -11,11 +12,19 @@ public class NPCUpgradeUI : MonoBehaviour
     public Button buyHealthPotionButton;
     public Button buyStaminaPotionButton;
 
+    [Header("Upgrade Costs and Values")]
+    public int healthUpgradeCost;
     public int healthIncrease;
+
+    public int staminaUpgradeCost;
     public int staminaIncrease;
+
+    public int damageUpgradeCost;
     public int damageIncrease;
-    public int expCost;
-    public int potionCost = 10;
+
+    [Header("Potion Costs")]
+    public int healthPotionCost;
+    public int staminaPotionCost;
 
     private HeroKnight hero;
     private PlayerHealth playerHealth;
@@ -77,64 +86,50 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void UpgradeHealth()
     {
-        if (hero.currentExperience >= expCost)
+        if (hero.currentExperience >= healthUpgradeCost)
         {
             playerHealth.maxHealth += healthIncrease;
             playerHealth.health += healthIncrease;
             playerHealth.healthBar.SetMaxHealth(playerHealth.maxHealth);
             playerHealth.healthBar.SetHealth(playerHealth.health);
-            hero.currentExperience -= expCost;
+            hero.currentExperience -= healthUpgradeCost;
         }
     }
 
     void UpgradeStamina()
     {
-        if (hero.currentExperience >= expCost)
+        if (hero.currentExperience >= staminaUpgradeCost)
         {
             playerStamina.maxStamina += staminaIncrease;
-            hero.currentExperience -= expCost;
             playerStamina.staminaBar.SetMaxStamina(playerStamina.maxStamina);
+            hero.currentExperience -= staminaUpgradeCost;
         }
     }
 
     void UpgradeDamage()
     {
-        if (hero.currentExperience >= expCost)
+        if (hero.currentExperience >= damageUpgradeCost)
         {
             hero.attackDamage += damageIncrease;
-            hero.currentExperience -= expCost;
+            hero.currentExperience -= damageUpgradeCost;
         }
     }
 
     void BuyHealthPotion()
     {
-        if (hero.currentExperience < potionCost)
-        {
+        if (hero.currentExperience < healthPotionCost || potionManager.healthPotionCount >= potionManager.maxHealthPotions)
             return;
-        }
-
-        if (potionManager.healthPotionCount >= potionManager.maxPotions)
-        {
-            return;
-        }
 
         potionManager.AddHealthPotion();
-        hero.currentExperience -= potionCost;
+        hero.currentExperience -= healthPotionCost;
     }
 
     void BuyStaminaPotion()
     {
-        if (hero.currentExperience < potionCost)
-        {
+        if (hero.currentExperience < staminaPotionCost || potionManager.staminaPotionCount >= potionManager.maxStaminaPotions)
             return;
-        }
-
-        if (potionManager.staminaPotionCount >= potionManager.maxPotions)
-        {
-            return;
-        }
 
         potionManager.AddStaminaPotion();
-        hero.currentExperience -= potionCost;
+        hero.currentExperience -= staminaPotionCost;
     }
 }

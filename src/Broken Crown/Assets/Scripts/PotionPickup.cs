@@ -6,8 +6,8 @@ public class PotionPickup : MonoBehaviour
     public enum PotionType { Health, Stamina, Respawn }
     public PotionType potionType;
 
-    public float pickupDelay = 1.5f;
-    public int experienceOnFull = 10;
+    public float pickupDelay;
+    public int experienceOnFull;
 
     private bool playerInRange = false;
     private bool potionVisible = false;
@@ -43,17 +43,17 @@ public class PotionPickup : MonoBehaviour
             {
                 bool added = false;
 
-                if (potionType == PotionType.Health && potionManager.healthPotionCount < potionManager.maxPotions)
+                if (potionType == PotionType.Health && potionManager.healthPotionCount < potionManager.maxHealthPotions)
                 {
                     potionManager.AddHealthPotion();
                     added = true;
                 }
-                else if (potionType == PotionType.Stamina && potionManager.staminaPotionCount < potionManager.maxPotions)
+                else if (potionType == PotionType.Stamina && potionManager.staminaPotionCount < potionManager.maxStaminaPotions)
                 {
                     potionManager.AddStaminaPotion();
                     added = true;
                 }
-                else if (potionType == PotionType.Respawn && potionManager.respawnPotionCount < potionManager.maxPotions)
+                else if (potionType == PotionType.Respawn && potionManager.respawnPotionCount < potionManager.maxRespawnPotions)
                 {
                     potionManager.AddRespawnPotion();
                     added = true;

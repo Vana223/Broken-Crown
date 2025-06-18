@@ -4,15 +4,21 @@ using UnityEngine.UI;
 
 public class PotionManager : MonoBehaviour
 {
-    public int maxPotions = 3;
+    [Header("Max Potion Counts")]
+    public int maxHealthPotions;
+    public int maxStaminaPotions;
+    public int maxRespawnPotions;
 
-    public int healthPotionCount = 0;
-    public int staminaPotionCount = 0;
-    public int respawnPotionCount = 0;
+    [Header("Current Potion Counts")]
+    public int healthPotionCount;
+    public int staminaPotionCount;
+    public int respawnPotionCount;
 
-    public int healAmount = 5;
-    public int staminaAmount = 5;
+    [Header("Potion Effects")]
+    public int healAmount;
+    public int staminaAmount;
 
+    [Header("UI Elements")]
     public GameObject healthFullImage, healthEmptyImage;
     public GameObject staminaFullImage, staminaEmptyImage;
     public GameObject respawnFullImage, respawnEmptyImage;
@@ -39,7 +45,7 @@ public class PotionManager : MonoBehaviour
 
     public void AddHealthPotion()
     {
-        if (healthPotionCount < maxPotions)
+        if (healthPotionCount < maxHealthPotions)
         {
             healthPotionCount++;
             UpdateUI();
@@ -48,7 +54,7 @@ public class PotionManager : MonoBehaviour
 
     public void AddStaminaPotion()
     {
-        if (staminaPotionCount < maxPotions)
+        if (staminaPotionCount < maxStaminaPotions)
         {
             staminaPotionCount++;
             UpdateUI();
@@ -57,7 +63,7 @@ public class PotionManager : MonoBehaviour
 
     public void AddRespawnPotion()
     {
-        if (respawnPotionCount < maxPotions)
+        if (respawnPotionCount < maxRespawnPotions)
         {
             respawnPotionCount++;
             UpdateUI();
