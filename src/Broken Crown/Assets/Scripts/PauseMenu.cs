@@ -9,15 +9,11 @@ public class PauseMenu : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("PauseMenu started");
         pauseMenu.SetActive(false);
     }
 
     void Update()
-    {
-        if (Input.anyKeyDown)
-            Debug.Log("Pressed some key");
-        
+    { 
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             Debug.Log("Escape pressed");
@@ -37,6 +33,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = false;
     }
 
     public void Resume()
@@ -44,6 +41,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenu.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = true;
     }
 
     public void Menu()

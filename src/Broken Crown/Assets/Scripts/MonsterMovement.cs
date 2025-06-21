@@ -18,10 +18,10 @@ public class MonsterMovement : MonoBehaviour
     private Animator animator;
     private Rigidbody2D rb;
 
-    private float knockbackTimer = 0f;
+    private float knockbackTimer;
     public float knockbackDuration;
 
-    public int expAmount = 10;
+    public int expAmount;
 
     void Start()
     {

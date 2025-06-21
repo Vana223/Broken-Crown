@@ -4,7 +4,7 @@ using UnityEngine.UI;
 public class StaminaBar : MonoBehaviour
 {
     public Slider slider;
-    public float smoothSpeed = 3f;
+    public float smoothSpeed;
 
     private float targetValue;
 

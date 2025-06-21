@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class PlayerStamina : MonoBehaviour
 {
-    public int maxStamina = 10;
+    public int maxStamina;
     public float currentStamina;
-    public float regenRate = 2f;
-    public float regenDelay = 3f;
+    public float regenRate;
+    public float regenDelay;
 
     public StaminaBar staminaBar;
 

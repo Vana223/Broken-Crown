@@ -53,6 +53,7 @@ public class NPCUpgradeUI : MonoBehaviour
             uiPanel.SetActive(isActive);
             Time.timeScale = isActive ? 0f : 1f;
             interactHint.SetActive(!isActive);
+            GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = !isActive;
         }
     }
 

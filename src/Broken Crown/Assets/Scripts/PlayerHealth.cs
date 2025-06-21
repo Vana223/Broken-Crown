@@ -51,6 +51,7 @@ public class PlayerHealth : MonoBehaviour
             deathPanelUI.SetActive(true);
 
         Time.timeScale = 0f;
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = false;
     }
 
     public void Respawn()
@@ -74,6 +75,7 @@ public class PlayerHealth : MonoBehaviour
             deathPanelUI.SetActive(false);
 
         Time.timeScale = 1f;
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = true;
     }
 
     public void RespawnOnDeathSpot()
@@ -90,5 +92,10 @@ public class PlayerHealth : MonoBehaviour
             deathPanelUI.SetActive(false);
 
         Time.timeScale = 1f;
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = true;
+    }
+    public void DisableHK()
+    {
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = false;
     }
 }
