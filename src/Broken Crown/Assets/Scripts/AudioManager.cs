@@ -19,9 +19,10 @@ public class AudioManager : MonoBehaviour
     private Dictionary<string, Sound> soundDict;
     private AudioSource sfxSource;
     private AudioSource musicSource;
-
     private AudioSource walkSource;
     private AudioSource runSource;
+
+    private float masterVolume = 1f;
 
     private void Awake()
     {
@@ -55,24 +56,47 @@ public class AudioManager : MonoBehaviour
                 soundDict.Add(sound.name, sound);
         }
 
+        // Загрузка сохранённой громкости
+        masterVolume = PlayerPrefs.GetFloat("MasterVolume", 1f);
+
         if (soundDict.TryGetValue("Walk", out Sound walkSound))
         {
             walkSource.clip = walkSound.clip;
-            walkSource.volume = walkSound.volume;
+            walkSource.volume = walkSound.volume * masterVolume;
         }
 
         if (soundDict.TryGetValue("Run", out Sound runSound))
         {
             runSource.clip = runSound.clip;
-            runSource.volume = runSound.volume;
+            runSource.volume = runSound.volume * masterVolume;
         }
+
+        // Установить громкость на старте
+        musicSource.volume = masterVolume;
+        walkSource.volume *= masterVolume;
+        runSource.volume *= masterVolume;
+    }
+
+    public void SetMasterVolume(float volume)
+    {
+        masterVolume = volume;
+        PlayerPrefs.SetFloat("MasterVolume", volume);
+
+        musicSource.volume = volume;
+
+        // Пересчёт громкости для шагов
+        if (soundDict.TryGetValue("Walk", out Sound walkSound))
+            walkSource.volume = walkSound.volume * masterVolume;
+
+        if (soundDict.TryGetValue("Run", out Sound runSound))
+            runSource.volume = runSound.volume * masterVolume;
     }
 
     public void Play(string soundName)
     {
         if (soundDict.TryGetValue(soundName, out Sound sound))
         {
-            sfxSource.PlayOneShot(sound.clip, sound.volume);
+            sfxSource.PlayOneShot(sound.clip, sound.volume * masterVolume);
         }
         else
         {
@@ -84,7 +108,7 @@ public class AudioManager : MonoBehaviour
     {
         if (soundDict.TryGetValue(musicName, out Sound sound))
         {
-            StartCoroutine(SwitchMusic(sound.clip, sound.volume));
+            StartCoroutine(SwitchMusic(sound.clip, sound.volume * masterVolume));
         }
         else
         {

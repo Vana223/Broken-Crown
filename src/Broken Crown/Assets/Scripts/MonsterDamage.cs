@@ -32,6 +32,20 @@ public class MonsterDamage : MonoBehaviour
         }
     }
 
+    void OnDrawGizmosSelected()
+    {
+        Vector3 pos = transform.position;
+
+        float direction = transform.localScale.x > 0 ? 1f : -1f;
+
+        pos += Vector3.right * attackOffset.x * direction;
+        pos += Vector3.up * attackOffset.y;
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(pos, attackRange);
+    }
+
+
     public float GetNextAttackTime()
     {
         return lastAttackTime + attackCooldown;

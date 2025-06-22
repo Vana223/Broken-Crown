@@ -11,6 +11,7 @@ public class HeroKnight : MonoBehaviour
     [SerializeField] Transform groundCheck;
     [SerializeField] float groundCheckRadius;
     [SerializeField] LayerMask groundLayer;
+    [SerializeField] private GameObject spikeWindowUI;
 
     private Animator m_animator;
     private Rigidbody2D m_body2d;
@@ -138,7 +139,7 @@ public class HeroKnight : MonoBehaviour
 
         m_animator.SetFloat("AirSpeedY", m_body2d.linearVelocity.y);
 
-        if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_animator.GetBool("IdleBlock") && stamina.UseStamina(2))
+        if (Input.GetMouseButtonDown(0) && m_timeSinceAttack > 0.25f && !m_animator.GetBool("IdleBlock") && stamina.UseStamina(3))
         {
             m_currentAttack++;
 
@@ -220,6 +221,16 @@ public class HeroKnight : MonoBehaviour
         float forceMultiplier = IsBlocking ? 0.3f : 1f;
         m_body2d.linearVelocity = new Vector2(direction * KBForce * forceMultiplier, KBForce * forceMultiplier);
         KBCounter -= Time.deltaTime;
+    }
+
+    public void ShowSpikeWindow()
+    {
+        if (spikeWindowUI != null)
+        {
+            spikeWindowUI.SetActive(true);
+        }
+        Time.timeScale = 0f;
+        GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = false;
     }
 
     void OnDrawGizmosSelected()

@@ -6,11 +6,13 @@ public class NPCUpgradeUI : MonoBehaviour
     [Header("UI Elements")]
     public GameObject uiPanel;
     public GameObject interactHint;
+    public GameObject dialogue;
     public Button healthButton;
     public Button staminaButton;
     public Button damageButton;
     public Button buyHealthPotionButton;
     public Button buyStaminaPotionButton;
+    public Button buyRespawnPotionButton;
 
     [Header("Upgrade Costs and Values")]
     public int healthUpgradeCost;
@@ -25,6 +27,7 @@ public class NPCUpgradeUI : MonoBehaviour
     [Header("Potion Costs")]
     public int healthPotionCost;
     public int staminaPotionCost;
+    public int respawnPotionCost;
 
     private HeroKnight hero;
     private PlayerHealth playerHealth;
@@ -32,6 +35,8 @@ public class NPCUpgradeUI : MonoBehaviour
     private PotionManager potionManager;
 
     private bool playerInRange = false;
+
+    private int x = 0;
 
     private void Start()
     {
@@ -43,6 +48,7 @@ public class NPCUpgradeUI : MonoBehaviour
         damageButton.onClick.AddListener(() => UpgradeDamage());
         buyHealthPotionButton.onClick.AddListener(() => BuyHealthPotion());
         buyStaminaPotionButton.onClick.AddListener(() => BuyStaminaPotion());
+        buyRespawnPotionButton.onClick.AddListener(() => BuyRespawnPotion());
     }
 
     private void Update()
@@ -55,6 +61,14 @@ public class NPCUpgradeUI : MonoBehaviour
             interactHint.SetActive(!isActive);
             GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = !isActive;
         }
+
+        if (uiPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+        {
+            uiPanel.SetActive(false);
+            Time.timeScale = 0f;
+            interactHint.SetActive(true);
+            GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = true;
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -65,6 +79,11 @@ public class NPCUpgradeUI : MonoBehaviour
             playerHealth = other.GetComponent<PlayerHealth>();
             playerStamina = other.GetComponent<PlayerStamina>();
             potionManager = other.GetComponent<PotionManager>();
+
+            if (x == 0)
+            {
+                dialogue.SetActive(true);
+            }
 
             if (hero != null && playerHealth != null && playerStamina != null && potionManager != null)
             {
@@ -81,7 +100,9 @@ public class NPCUpgradeUI : MonoBehaviour
             playerInRange = false;
             uiPanel.SetActive(false);
             interactHint.SetActive(false);
+            dialogue.SetActive(false);
             Time.timeScale = 1f;
+            x += 1;
         }
     }
 
@@ -132,5 +153,14 @@ public class NPCUpgradeUI : MonoBehaviour
 
         potionManager.AddStaminaPotion();
         hero.currentExperience -= staminaPotionCost;
+    }
+
+    void BuyRespawnPotion()
+    {
+        if (hero.currentExperience < respawnPotionCost || potionManager.respawnPotionCount >= potionManager.maxRespawnPotions)
+            return;
+
+        potionManager.AddRespawnPotion();
+        hero.currentExperience -= respawnPotionCost;
     }
 }

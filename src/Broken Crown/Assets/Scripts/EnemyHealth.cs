@@ -12,7 +12,7 @@ public class EnemyHealth : MonoBehaviour
     public HealthBar healthBar;
 
     private Rigidbody2D rb;
-    public float knockbackForce = 2f;
+    public float knockbackForce;
 
     void Start()
     {

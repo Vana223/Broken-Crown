@@ -34,6 +34,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 0f;
         isPaused = true;
         GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = false;
+        GameObject.Find("Dealer").GetComponent<NPCUpgradeUI>().enabled = false;
     }
 
     public void Resume()
@@ -42,6 +43,7 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         isPaused = false;
         GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = true;
+        GameObject.Find("Dealer").GetComponent<NPCUpgradeUI>().enabled = true;
     }
 
     public void Menu()

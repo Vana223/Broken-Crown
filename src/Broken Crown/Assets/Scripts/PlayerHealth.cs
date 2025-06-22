@@ -8,6 +8,7 @@ public class PlayerHealth : MonoBehaviour
 
     public HealthBar healthBar;
     public GameObject deathPanelUI;
+    public GameObject deathPanelUI2;
 
     private Vector3 lastDeathPosition;
     private PlayerStamina stamina;
@@ -29,7 +30,7 @@ public class PlayerHealth : MonoBehaviour
 
         if (hero != null && hero.IsBlocking && stamina != null)
         {
-            if (stamina.UseStamina(3))
+            if (stamina.UseStamina(2))
                 return;
         }
 
@@ -73,6 +74,9 @@ public class PlayerHealth : MonoBehaviour
 
         if (deathPanelUI != null)
             deathPanelUI.SetActive(false);
+
+        if (deathPanelUI2 != null)
+            deathPanelUI2.SetActive(false);
 
         Time.timeScale = 1f;
         GameObject.Find("HeroKnight").GetComponent<HeroKnight>().enabled = true;

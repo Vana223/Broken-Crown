@@ -9,7 +9,7 @@ public class Spikes : MonoBehaviour
             Animator playerAnimator = collision.GetComponent<Animator>();
             if (playerAnimator != null)
             {
-                playerAnimator.SetTrigger("Death");
+                playerAnimator.SetTrigger("Spike");
             }
         }
     }

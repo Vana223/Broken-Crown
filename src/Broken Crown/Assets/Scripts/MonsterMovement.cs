@@ -11,6 +11,10 @@ public class MonsterMovement : MonoBehaviour
     public float stopChaseDistance;
     public float attackRange;
 
+    public Vector2 attackOffset;
+    public Vector2 chaseOffset;
+    public Vector2 stopChaseOffset;
+
     public MonsterDamage monsterDamage;
 
     public Transform canvasRoot;
@@ -37,9 +41,17 @@ public class MonsterMovement : MonoBehaviour
             return;
         }
 
-        float distanceToPlayer = Vector2.Distance(transform.position, playerTransform.position);
+        float direction = GetFacingDirection();
 
-        if (distanceToPlayer <= attackRange)
+        Vector3 attackOrigin = transform.position + new Vector3(attackOffset.x * direction, attackOffset.y, 0f);
+        Vector3 chaseOrigin = transform.position + new Vector3(chaseOffset.x * direction, chaseOffset.y, 0f);
+        Vector3 stopChaseOrigin = transform.position + new Vector3(stopChaseOffset.x * direction, stopChaseOffset.y, 0f);
+
+        float distanceToPlayer = Vector2.Distance(chaseOrigin, playerTransform.position);
+        float stopChaseDistanceToPlayer = Vector2.Distance(stopChaseOrigin, playerTransform.position);
+        float attackDistanceToPlayer = Vector2.Distance(attackOrigin, playerTransform.position);
+
+        if (attackDistanceToPlayer <= attackRange)
         {
             rb.linearVelocity = Vector2.zero;
             animator.SetBool("isWalking", false);
@@ -58,7 +70,7 @@ public class MonsterMovement : MonoBehaviour
             {
                 animator.SetBool("isWalking", true);
 
-                if (distanceToPlayer > stopChaseDistance)
+                if (stopChaseDistanceToPlayer > stopChaseDistance)
                 {
                     isChasing = false;
                     return;
@@ -115,12 +127,13 @@ public class MonsterMovement : MonoBehaviour
 
         if (canvasRoot != null)
         {
-            canvasRoot.localScale = new Vector3(
-                -xScale,
-                1f,
-                1f
-            );
+            canvasRoot.localScale = new Vector3(-xScale, 1f, 1f);
         }
+    }
+
+    float GetFacingDirection()
+    {
+        return transform.localScale.x > 0 ? 1f : -1f;
     }
 
     public void ApplyKnockback()
@@ -137,5 +150,28 @@ public class MonsterMovement : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        float direction = Application.isPlaying ? GetFacingDirection() : 1f;
+
+        // Attack range
+        Vector3 attackPos = transform.position + new Vector3(attackOffset.x * direction, attackOffset.y, 0f);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackPos, attackRange);
+        Gizmos.DrawSphere(attackPos, 0.05f);
+
+        // Chase distance
+        Vector3 chasePos = transform.position + new Vector3(chaseOffset.x * direction, chaseOffset.y, 0f);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(chasePos, chaseDistance);
+        Gizmos.DrawSphere(chasePos, 0.05f);
+
+        // Stop chase distance
+        Vector3 stopChasePos = transform.position + new Vector3(stopChaseOffset.x * direction, stopChaseOffset.y, 0f);
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(stopChasePos, stopChaseDistance);
+        Gizmos.DrawSphere(stopChasePos, 0.05f);
     }
 }
