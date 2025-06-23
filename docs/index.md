@@ -13,6 +13,7 @@
 ## Використані технології
 * Unity
 * C#
+* Visual Studio Code 
 * Figma
 * Gimp
   
