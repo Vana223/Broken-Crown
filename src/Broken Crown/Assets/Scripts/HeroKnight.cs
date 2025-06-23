@@ -161,7 +161,18 @@ public class HeroKnight : MonoBehaviour
             foreach (Collider2D enemy in hitEnemies)
             {
                 Vector2 knockDir = (enemy.transform.position - transform.position).normalized;
-                enemy.GetComponent<EnemyHealth>().TakeDamage(attackDamage, knockDir);
+                var enemyHealth = enemy.GetComponent<EnemyHealth>();
+                if (enemyHealth != null)
+                {
+                    enemyHealth.TakeDamage(attackDamage, knockDir);
+                    continue;
+                }
+
+                var morokHealth = enemy.GetComponent<MorokHealth>();
+                if (morokHealth != null)
+                {
+                    morokHealth.TakeDamage(attackDamage, knockDir);
+                }
             }
         }
         else if (Input.GetMouseButtonDown(1))

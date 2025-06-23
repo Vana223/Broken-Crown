@@ -156,19 +156,16 @@ public class MonsterMovement : MonoBehaviour
     {
         float direction = Application.isPlaying ? GetFacingDirection() : 1f;
 
-        // Attack range
         Vector3 attackPos = transform.position + new Vector3(attackOffset.x * direction, attackOffset.y, 0f);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPos, attackRange);
         Gizmos.DrawSphere(attackPos, 0.05f);
 
-        // Chase distance
         Vector3 chasePos = transform.position + new Vector3(chaseOffset.x * direction, chaseOffset.y, 0f);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(chasePos, chaseDistance);
         Gizmos.DrawSphere(chasePos, 0.05f);
 
-        // Stop chase distance
         Vector3 stopChasePos = transform.position + new Vector3(stopChaseOffset.x * direction, stopChaseOffset.y, 0f);
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(stopChasePos, stopChaseDistance);
