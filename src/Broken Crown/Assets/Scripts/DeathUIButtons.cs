@@ -8,7 +8,7 @@ public class DeathUIButtons : MonoBehaviour
     public Button notPoisonButton;
     public PotionManager potionManager;
 
-    void Start()
+    void OnEnable()
     {
         UpdateButtons();
     }

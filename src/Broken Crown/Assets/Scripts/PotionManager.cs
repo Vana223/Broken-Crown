@@ -27,6 +27,8 @@ public class PotionManager : MonoBehaviour
     public TextMeshProUGUI staminaPotionText;
     public TextMeshProUGUI respawnPotionText;
 
+    public DeathUIButtons deathUIButtons;
+
     private PlayerHealth playerHealth;
     private PlayerStamina playerStamina;
 
@@ -105,5 +107,8 @@ public class PotionManager : MonoBehaviour
 
         respawnFullImage.SetActive(respawnPotionCount > 0);
         respawnEmptyImage.SetActive(respawnPotionCount == 0);
+
+        if (deathUIButtons != null)
+            deathUIButtons.UpdateButtons();
     }
 }

@@ -35,20 +35,13 @@ public class NPCUpgradeUI : MonoBehaviour
     private PotionManager potionManager;
 
     private bool playerInRange = false;
-
+    private bool buttonsConnected = false;
     private int x = 0;
 
     private void Start()
     {
         uiPanel.SetActive(false);
         interactHint.SetActive(false);
-
-        healthButton.onClick.AddListener(() => UpgradeHealth());
-        staminaButton.onClick.AddListener(() => UpgradeStamina());
-        damageButton.onClick.AddListener(() => UpgradeDamage());
-        buyHealthPotionButton.onClick.AddListener(() => BuyHealthPotion());
-        buyStaminaPotionButton.onClick.AddListener(() => BuyStaminaPotion());
-        buyRespawnPotionButton.onClick.AddListener(() => BuyRespawnPotion());
     }
 
     private void Update()
@@ -89,6 +82,17 @@ public class NPCUpgradeUI : MonoBehaviour
             {
                 playerInRange = true;
                 interactHint.SetActive(true);
+
+                if (!buttonsConnected)
+                {
+                    healthButton.onClick.AddListener(UpgradeHealth);
+                    staminaButton.onClick.AddListener(UpgradeStamina);
+                    damageButton.onClick.AddListener(UpgradeDamage);
+                    buyHealthPotionButton.onClick.AddListener(BuyHealthPotion);
+                    buyStaminaPotionButton.onClick.AddListener(BuyStaminaPotion);
+                    buyRespawnPotionButton.onClick.AddListener(BuyRespawnPotion);
+                    buttonsConnected = true;
+                }
             }
         }
     }
@@ -108,6 +112,8 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void UpgradeHealth()
     {
+        if (hero == null || playerHealth == null) return;
+
         if (hero.currentExperience >= healthUpgradeCost)
         {
             playerHealth.maxHealth += healthIncrease;
@@ -120,6 +126,8 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void UpgradeStamina()
     {
+        if (hero == null || playerStamina == null) return;
+
         if (hero.currentExperience >= staminaUpgradeCost)
         {
             playerStamina.maxStamina += staminaIncrease;
@@ -130,6 +138,8 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void UpgradeDamage()
     {
+        if (hero == null) return;
+
         if (hero.currentExperience >= damageUpgradeCost)
         {
             hero.attackDamage += damageIncrease;
@@ -139,6 +149,8 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void BuyHealthPotion()
     {
+        if (hero == null || potionManager == null) return;
+
         if (hero.currentExperience < healthPotionCost || potionManager.healthPotionCount >= potionManager.maxHealthPotions)
             return;
 
@@ -148,6 +160,8 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void BuyStaminaPotion()
     {
+        if (hero == null || potionManager == null) return;
+
         if (hero.currentExperience < staminaPotionCost || potionManager.staminaPotionCount >= potionManager.maxStaminaPotions)
             return;
 
@@ -157,6 +171,8 @@ public class NPCUpgradeUI : MonoBehaviour
 
     void BuyRespawnPotion()
     {
+        if (hero == null || potionManager == null) return;
+
         if (hero.currentExperience < respawnPotionCost || potionManager.respawnPotionCount >= potionManager.maxRespawnPotions)
             return;
 

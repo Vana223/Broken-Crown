@@ -56,7 +56,6 @@ public class AudioManager : MonoBehaviour
                 soundDict.Add(sound.name, sound);
         }
 
-        // Загрузка сохранённой громкости
         masterVolume = PlayerPrefs.GetFloat("MasterVolume", 1f);
 
         if (soundDict.TryGetValue("Walk", out Sound walkSound))
@@ -71,7 +70,6 @@ public class AudioManager : MonoBehaviour
             runSource.volume = runSound.volume * masterVolume;
         }
 
-        // Установить громкость на старте
         musicSource.volume = masterVolume;
         walkSource.volume *= masterVolume;
         runSource.volume *= masterVolume;
@@ -84,7 +82,6 @@ public class AudioManager : MonoBehaviour
 
         musicSource.volume = volume;
 
-        // Пересчёт громкости для шагов
         if (soundDict.TryGetValue("Walk", out Sound walkSound))
             walkSource.volume = walkSound.volume * masterVolume;
 
@@ -142,6 +139,27 @@ public class AudioManager : MonoBehaviour
         }
 
         musicSource.volume = targetVolume;
+    }
+
+    public void FadeOutMusic(float duration = 1f)
+    {
+        StartCoroutine(FadeOutMusicCoroutine(duration));
+    }
+
+    private IEnumerator FadeOutMusicCoroutine(float duration)
+    {
+        float startVolume = musicSource.volume;
+        float t = 0f;
+
+        while (t < duration)
+        {
+            musicSource.volume = Mathf.Lerp(startVolume, 0f, t / duration);
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        musicSource.volume = 0f;
+        musicSource.Stop();
     }
 
     public void PlayWalkLoop()

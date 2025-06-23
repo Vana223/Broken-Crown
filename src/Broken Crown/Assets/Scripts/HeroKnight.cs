@@ -110,31 +110,10 @@ public class HeroKnight : MonoBehaviour
         {
             float currentSpeed = isSprinting ? m_speed + sprintSpeedBonus : m_speed;
             m_body2d.linearVelocity = new Vector2(inputX * currentSpeed, m_body2d.linearVelocity.y);
-
-            if (Mathf.Abs(inputX) > 0.1f && m_grounded)
-            {
-                if (isSprinting)
-                {
-                    AudioManager.Instance.StopWalkLoop();
-                    AudioManager.Instance.PlayRunLoop();
-                }
-                else
-                {
-                    AudioManager.Instance.StopRunLoop();
-                    AudioManager.Instance.PlayWalkLoop();
-                }
-            }
-            else
-            {
-                AudioManager.Instance.StopWalkLoop();
-                AudioManager.Instance.StopRunLoop();
-            }
         }
         else
         {
             m_body2d.linearVelocity = new Vector2(0, m_body2d.linearVelocity.y);
-            AudioManager.Instance.StopWalkLoop();
-            AudioManager.Instance.StopRunLoop();
         }
 
         m_animator.SetFloat("AirSpeedY", m_body2d.linearVelocity.y);
@@ -152,8 +131,6 @@ public class HeroKnight : MonoBehaviour
             m_animator.SetTrigger("Attack" + m_currentAttack);
             isAttacking = true;
             StartCoroutine(StopAttackingAfterDelay(0.5f));
-
-            AudioManager.Instance.Play("Sword");
 
             m_timeSinceAttack = 0.0f;
 
@@ -180,8 +157,6 @@ public class HeroKnight : MonoBehaviour
             m_animator.SetTrigger("Block");
             m_animator.SetBool("IdleBlock", true);
             IsBlocking = true;
-
-            AudioManager.Instance.Play("Shield");
         }
         else if (Input.GetMouseButtonUp(1))
         {

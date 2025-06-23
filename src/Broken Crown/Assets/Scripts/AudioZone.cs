@@ -11,4 +11,12 @@ public class AudioZone : MonoBehaviour
             AudioManager.Instance.PlayMusic(musicName);
         }
     }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            AudioManager.Instance.FadeOutMusic(1f);
+        }
+    }
 }
